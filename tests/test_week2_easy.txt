@@ -1,0 +1,14 @@
+"abc"
+(_"abc")
+(_"a")
+("qwerty" + "uiop")
+("abc" * 5)
+("abc" * 50)
+("abc" * 0)
+("abc" ~ "abd") # b
+("abc" ~ "abc") # b
+("abcd" > "abc") # b
+("eee" < "eed") # b
+(("a" > "A") ? "b" : "c")
+(("CS" + "429") * 12)
+@q

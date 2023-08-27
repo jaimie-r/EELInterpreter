@@ -1,0 +1,14 @@
+"abc
+("abc" + 1)
+(5 * "abc")
+("abc" / 0)
+("abc" & "abc)
+("asdf" * -20)
+("asdf" - "a")
+("qwerty" * "uiop")
+("this" % "should fail")
+("abc" > 3)
+("abc" < 20)
+("a" ~ 97)
+(("abc" < "abd") ? "a" : 2)
+@q

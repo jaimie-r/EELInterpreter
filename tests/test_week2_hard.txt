@@ -1,0 +1,11 @@
+(("this is a longer string " + "that repeats 100 times ") * 100)
+(("I hope you're allocating enough memory! " * 1024))
+(((("abc" + "12") > ("abc" + "11")) ? "true" : "false")) # b
+(("qwertyuiop") ~ (_("oiuytrewq" + "p")) # b
+(((_(_"hello")) ~ "hello")? (_1) : 2)
+((!(!(!("failure"~"failure")))) ? ((50%3)-2) : ((22*36)+8))
+((((5 % 2) < 10)) ? ((_"abc") ~ "cba") : ((17 % 0) ~ 17)) #b
+("str" + ("str2" + ("str3" + "str4")))
+((6 < 7) ? ( "abc" + "ABC") : "def")
+((true & (false | false)) ? ("does this work?" * (_(1))) : "of course it does!")
+@q

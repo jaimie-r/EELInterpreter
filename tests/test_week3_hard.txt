@@ -1,0 +1,12 @@
+a = "Let's check for memory leaks!"
+a = "Reassigning variable..."
+b = (a * 400)
+@p
+a = b
+b = "I hope you're making copies!"
+@p
+a = ((a > b) ? ((3 * 4) % 7) : ((8 + 9) - 11))
+b = (a ~ 5)
+c = (b ? (3 * a) : (_(a - 20)))
+@p
+@q

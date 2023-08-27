@@ -1,0 +1,5 @@
+*.o
+_output*
+valgrind_log
+ci
+# Students may add any other files to exclude from their repo below

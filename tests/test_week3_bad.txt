@@ -1,0 +1,15 @@
+longnamevariable = "Hello, World!"
+a = ((1 + 7) * (10 / 2))
+b = (a ~ longnamevariable)
+@p
+b = true
+c = "true"
+(b & c)
+(b ? a : c)
+(b ? longnamevariable : c)
+one = 1
+zero = 0
+(one / zero)
+(one % zero)
+(longnamevariable * (_(one)))
+@q

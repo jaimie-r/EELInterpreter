@@ -34,27 +34,83 @@ static void infer_type(node_t *nptr) {
     if (terminate || ignore_input) return;
 
     // Week 1 TODO: Implement a recursive post-order traversal of the AST. Remember to include a base case.
-
-    switch (nptr->node_type) {
-        // For each week, you will also need to include error checking for each type.
-        // Week 1 TODO: Implement type inference for all operators on int and bool types.
-        // Week 2 TODO: Extend type inference to handle operators on string types.
-        // Week 3 TODO: Implement tpye evaluation for variables.
-        case NT_INTERNAL:
-            switch (nptr->tok) {
-                // For reference, the identity (do nothing) operator is implemented for you.
-                case TOK_IDENTITY:
-                    nptr->type = nptr->children[0]->type; 
-                    break;
-                default:
-                    break;
-            }
-        case NT_LEAF:
-            break;
-        default:
-            break;
+    if (nptr != NULL) {
+        for (int i = 0; i < 3; i++) {
+                infer_type(nptr->children[i]);
+        }
+        switch (nptr->node_type) {
+            // For each week, you will also need to include error checking for each type.
+            // Week 1 TODO: Implement type inference for all operators on int and bool types.
+            // Week 2 TODO: Extend type inference to handle operators on string types.
+            // Week 3 TODO: Implement tpye evaluation for variables.
+            case NT_INTERNAL:
+                switch (nptr->tok) {
+                    // For reference, the identity (do nothing) operator is implemented for you.
+                    case TOK_IDENTITY:
+                        nptr->type = nptr->children[0]->type; 
+                        break;
+                    // binary operators
+                    case TOK_PLUS:
+                    case TOK_BMINUS:
+                    case TOK_TIMES:
+                    case TOK_MOD:
+                    case TOK_DIV:
+                    case TOK_LT:
+                    case TOK_GT:
+                        if (nptr->children[0]->type == nptr->children[1]->type && nptr->children[0]->type == INT_TYPE) {
+                            nptr->type = INT_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
+                    case TOK_AND:
+                    case TOK_OR:
+                        if (nptr->children[0]->type == nptr->children[1]->type && nptr->children[0]->type == BOOL_TYPE) {
+                            nptr->type = BOOL_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
+                    case TOK_EQ:
+                        if (nptr->children[0]->type == nptr->children[1]->type) {
+                            nptr->type = BOOL_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                    // unary operators
+                    case TOK_UMINUS:
+                        if (nptr->children[0]->type == INT_TYPE) {
+                            nptr->type = INT_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
+                    case TOK_NOT:
+                        if (nptr->children[0]->type == BOOL_TYPE) {
+                            nptr->type = BOOL_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
+                    // ternary operators
+                    case TOK_QUESTION:
+                        if (nptr->children[1]->type == nptr->children[2]->type) {
+                            nptr->type = nptr->children[1]->type;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            case NT_LEAF:
+                break;
+            case NT_ROOT:
+                break;
+            default:
+                break;
+        }
     }
-    return;
 }
 
 /* infer_root() - set the type of the root node based on the types of children
@@ -96,41 +152,125 @@ static void eval_node(node_t *nptr) {
     if (terminate || ignore_input) return;
 
     // Week 1 TODO: Implement a recursive post-order traversal of the AST. Remember to include a base case.
+    if (nptr != NULL) {
+        for (int i = 0; i < 3; i++) {
+                infer_type(nptr->children[i]);
+        }
     
-    switch (nptr->node_type) {
-        case NT_INTERNAL:
-            // Week 1 TODO: Implement evaluation for all operators on int and bool types.
-            // Week 2 TODO: Extend evaluation to handle operators on string types.
-            if (is_unop(nptr->tok)) {
-                switch (nptr->tok) {
-                    default:
-                        break;
+        switch (nptr->node_type) {
+            case NT_INTERNAL:
+                // Week 1 TODO: Implement evaluation for all operators on int and bool types.
+                // Week 2 TODO: Extend evaluation to handle operators on string types.
+                if (is_unop(nptr->tok)) {
+                    switch (nptr->tok) {
+                        case TOK_UMINUS:
+                            nptr->val.ival = - (nptr->children[0]->val.ival);
+                            break;
+                        case TOK_NOT:
+                            if (nptr->children[0]->val.bval) {
+                                nptr->val.bval = false;
+                            } else {
+                                nptr->val.bval = true;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
-            if (is_binop(nptr->tok)) {
-                switch (nptr->tok) {
-                    default:
-                        break;
+                if (is_binop(nptr->tok)) {
+                    switch (nptr->tok) {
+                        case TOK_PLUS:
+                            nptr->val.ival = nptr->children[0]->val.ival + nptr->children[1]->val.ival;
+                            break;
+                        case TOK_BMINUS:
+                            nptr->val.ival = nptr->children[0]->val.ival - nptr->children[1]->val.ival;
+                            break;
+                        case TOK_TIMES:
+                            nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
+                            break;
+                        case TOK_DIV:
+                            if (nptr->children[1]->val.ival == 0) {
+                                handle_error(ERR_EVAL);
+                            } else {
+                                nptr->val.ival = nptr->children[0]->val.ival / nptr->children[1]->val.ival;
+                            }
+                            break;
+                        case TOK_MOD:
+                            if (nptr->children[1]->val.ival == 0) {
+                                handle_error(ERR_EVAL);
+                            } else {
+                                nptr->val.ival = nptr->children[0]->val.ival % nptr->children[1]->val.ival;
+                            }
+                            break;
+                        case TOK_AND:
+                            if ( nptr->children[0]->val.bval == false || nptr->children[1]->val.bval == false) {
+                                nptr->val.bval = false;
+                            } else {
+                                nptr->val.bval = true;
+                            }
+                            break;
+                        case TOK_OR:
+                            if ( nptr->children[0]->val.bval == true || nptr->children[1]->val.bval == true) {
+                                nptr->val.bval = true;
+                            } else {
+                                nptr->val.bval = false;
+                            }
+                            break;
+                        case TOK_LT:
+                            if ( nptr->children[0]->val.ival < nptr->children[1]->val.ival) {
+                                nptr->val.bval = true;
+                            } else {
+                                nptr->val.bval = false;
+                            }
+                            break;
+                        case TOK_GT:
+                            if ( nptr->children[0]->val.ival > nptr->children[1]->val.ival) {
+                                nptr->val.bval = true;
+                            } else {
+                                nptr->val.bval = false;
+                            }
+                            break;
+                        case TOK_EQ: // number or boolean? both
+                            if(nptr->type == INT_TYPE) {
+                                if(nptr->children[0]->val.ival == nptr->children[1]->val.ival) {
+                                    nptr->val.bval = true;
+                                } else {
+                                    nptr->val.bval = false;
+                                }
+                            } else {
+                                if(nptr->children[0]->val.bval == nptr->children[1]->val.bval) {
+                                    nptr->val.bval = true;
+                                } else {
+                                    nptr->val.bval = false;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
-            if (nptr->tok == TOK_QUESTION) {
-
-            }
-            // For reference, the identity (do-nothing) operator has been implemented for you.
-            if (nptr->tok == TOK_IDENTITY) {
-                if (nptr->type == STRING_TYPE) {
-                    // Week 2 TODO: You'll need to make a copy of the string.
-                } else {
-                    nptr->val.ival = nptr->children[0]->val.ival;
+                if (nptr->tok == TOK_QUESTION) { 
+                    if(nptr->children[0]->val.bval) {
+                        nptr->val = nptr->children[1]->val;
+                    } else {
+                        nptr->val = nptr->children[2]->val;
+                    }
                 }
-            }
-            break;
-        case NT_LEAF:
-            break;
-        default:
-            break;
+                // For reference, the identity (do-nothing) operator has been implemented for you.
+                if (nptr->tok == TOK_IDENTITY) {
+                    if (nptr->type == STRING_TYPE) {
+                        // Week 2 TODO: You'll need to make a copy of the string.
+                    } else {
+                        nptr->val.ival = nptr->children[0]->val.ival;
+                    }
+                }
+                break;
+            case NT_LEAF:
+                break;
+            default:
+                break;
+        }
     }
-    return;
 }
 
 /* eval_root() - set the value of the root node based on the values of children 

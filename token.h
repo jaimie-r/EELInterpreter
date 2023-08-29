@@ -21,7 +21,7 @@ typedef enum {
     // delimiters
     TOK_LPAREN,         // (
     TOK_RPAREN,         // )
-    // ternary operator
+    // ternary operator (Only one with three children)
     TOK_QUESTION,       // ?
     TOK_COLON,          // :
     // binary operators

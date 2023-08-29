@@ -154,7 +154,7 @@ static void eval_node(node_t *nptr) {
     // Week 1 TODO: Implement a recursive post-order traversal of the AST. Remember to include a base case.
     if (nptr != NULL) {
         for (int i = 0; i < 3; i++) {
-                infer_type(nptr->children[i]);
+                eval_node(nptr->children[i]);
         }
     
         switch (nptr->node_type) {

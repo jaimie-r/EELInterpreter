@@ -446,8 +446,8 @@ void cleanup(node_t *nptr) {
             cleanup(nptr->children[i]);
         }
         if(nptr->type == STRING_TYPE) {
-            // free(nptr->val.sval);
+            free(nptr->val.sval);
         }
-        // free(nptr);
+        free(nptr);
     }
 }

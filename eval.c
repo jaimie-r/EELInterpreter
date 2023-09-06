@@ -267,7 +267,9 @@ static void eval_node(node_t *nptr) {
                                 if ( nptr->children[0]->type == INT_TYPE && nptr->children[0]->val.ival < nptr->children[1]->val.ival) {
                                     nptr->val.bval = true;
                                 } else if (nptr->children[0]->type == STRING_TYPE ) {
-                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, strlen(nptr->children[0]->val.sval));
+                                    int len = (nptr->children[0]->val.sval > nptr->children[1]->val.sval) 
+                                        ? nptr->children[0]->val.sval : nptr->children[1]->val.sval;
+                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, len);
                                     if(res < 0) {
                                         nptr->val.bval = true;
                                     } else {
@@ -281,7 +283,9 @@ static void eval_node(node_t *nptr) {
                                 if ( nptr->children[0]->type == INT_TYPE && nptr->children[0]->val.ival > nptr->children[1]->val.ival) {
                                     nptr->val.bval = true;
                                 } else if (nptr->children[0]->type == STRING_TYPE ) {
-                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, strlen(nptr->children[0]->val.sval));
+                                    int len = (nptr->children[0]->val.sval > nptr->children[1]->val.sval) 
+                                        ? nptr->children[0]->val.sval : nptr->children[1]->val.sval;
+                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, len);
                                     if(res > 0) {
                                         nptr->val.bval = true;
                                     } else {
@@ -305,7 +309,9 @@ static void eval_node(node_t *nptr) {
                                         nptr->val.bval = false;
                                     }
                                 } else if (nptr->children[0]->type == STRING_TYPE) {
-                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, strlen(nptr->children[0]->val.sval));
+                                    int len = (nptr->children[0]->val.sval > nptr->children[1]->val.sval) 
+                                        ? nptr->children[0]->val.sval : nptr->children[1]->val.sval;
+                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, len);
                                     if(res == 0) {
                                         nptr->val.bval = true;
                                     } else {

@@ -218,7 +218,8 @@ static void eval_node(node_t *nptr) {
                                     nptr->val.sval = malloc( strlen(nptr->children[0]->val.sval)
                                         + strlen(nptr->children[1]->val.sval) + 1); 
                                     nptr->val.sval[0] = '\0';
-                                    strcat(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
+                                    strcat(nptr->val.sval, nptr->children[0]->val.sval);
+                                    strcat(nptr->val.sval, nptr->children[1]->val.sval);
                                 }
                                 break;
                             case TOK_BMINUS:

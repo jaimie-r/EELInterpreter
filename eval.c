@@ -325,8 +325,10 @@ static void eval_node(node_t *nptr) {
                             nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
                             nptr->val.sval[0] = '\0';
                             strcpy(nptr->val.sval, nptr->children[0]->val.sval);
-                        } else {
+                        } else if (nptr->type == INT_TYPE) {
                             nptr->val.ival = nptr->children[0]->val.ival;
+                        } else if (nptr->type == BOOL_TYPE) {
+                            nptr->val.bval = nptr->children[0]->val.bval;
                         }
                     }
                     break;

@@ -104,6 +104,8 @@ static void infer_type(node_t *nptr) {
                     case TOK_UMINUS:
                         if (nptr->children[0]->type == INT_TYPE) {
                             nptr->type = INT_TYPE;
+                        } else if (nptr->children[0]->type == STRING_TYPE) {
+                            nptr->type = STRING_TYPE;
                         } else {
                             handle_error(ERR_TYPE);
                         }
@@ -226,11 +228,11 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
+                                    nptr->val.sval = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
                                     for(int i = 0; i < nptr->children[1]->val.ival; i++) {
-                                        nptr->val.sval = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
                                         strcat(nptr->val.sval, nptr->children[0]->val.sval);
-                                        nptr->val.sval[nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval)] = '\0';
                                     }
+                                    nptr->val.sval[nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval)] = '\0';
                                 }
                                 break;
                             case TOK_DIV:

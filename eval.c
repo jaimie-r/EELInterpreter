@@ -323,12 +323,9 @@ static void eval_node(node_t *nptr) {
                         if (nptr->type == STRING_TYPE) {
                             // Week 2 TODO: You'll need to make a copy of the string.
                             nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
-                            nptr->val.sval[0] = '\0';
                             strcpy(nptr->val.sval, nptr->children[0]->val.sval);
-                        } else if (nptr->type == INT_TYPE) {
+                        } else {
                             nptr->val.ival = nptr->children[0]->val.ival;
-                        } else if (nptr->type == BOOL_TYPE) {
-                            nptr->val.bval = nptr->children[0]->val.bval;
                         }
                     }
                     break;

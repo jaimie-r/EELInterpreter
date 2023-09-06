@@ -267,7 +267,7 @@ static void eval_node(node_t *nptr) {
                                 if ( nptr->children[0]->type == INT_TYPE && nptr->children[0]->val.ival < nptr->children[1]->val.ival) {
                                     nptr->val.bval = true;
                                 } else if (nptr->children[0]->type == STRING_TYPE ) {
-                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
+                                    int res = strcmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
                                     if(res < 0) {
                                         nptr->val.bval = true;
                                     } else {

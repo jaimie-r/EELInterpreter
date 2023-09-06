@@ -51,8 +51,24 @@ static void infer_type(node_t *nptr) {
                         break;
                     // binary operators
                     case TOK_PLUS:
-                    case TOK_BMINUS:
+                        if (nptr->children[0]->type == INT_TYPE && nptr->children[1]->type == INT_TYPE) {
+                            nptr->type = INT_TYPE;
+                        } else if (nptr->children[0]->type == STRING_TYPE && nptr->children[1]->type == STRING_TYPE){
+                            nptr->type = STRING_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
                     case TOK_TIMES:
+                        if (nptr->children[0]->type == INT_TYPE && nptr->children[1]->type == INT_TYPE) {
+                            nptr->type = INT_TYPE;
+                        } else if (nptr->children[0]->type == STRING_TYPE && nptr->children[1]->type == INT_TYPE){
+                            nptr->type = STRING_TYPE;
+                        } else {
+                            handle_error(ERR_TYPE);
+                        }
+                        break;
+                    case TOK_BMINUS:
                     case TOK_MOD:
                     case TOK_DIV:
                         if (nptr->children[0]->type == nptr->children[1]->type && nptr->children[0]->type == INT_TYPE) {
@@ -63,7 +79,8 @@ static void infer_type(node_t *nptr) {
                         break;
                     case TOK_LT:
                     case TOK_GT:
-                        if (nptr->children[0]->type == nptr->children[1]->type && nptr->children[0]->type == INT_TYPE) {
+                        if (nptr->children[0]->type == nptr->children[1]->type && (nptr->children[0]->type == INT_TYPE
+                                || nptr->children[0]->type == STRING_TYPE)) {
                             nptr->type = BOOL_TYPE;
                         } else {
                             handle_error(ERR_TYPE);
@@ -171,7 +188,13 @@ static void eval_node(node_t *nptr) {
                     if (is_unop(nptr->tok)) {
                         switch (nptr->tok) {
                             case TOK_UMINUS:
+                            if(nptr->children[0]->type == INT_TYPE) {
                                 nptr->val.ival = - (nptr->children[0]->val.ival);
+                            } else if(nptr->children[0]->type == STRING_TYPE) {
+                                nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
+                                nptr->val.sval = strrev(nptr->children[0]->val.sval);
+                                nptr->val.sval[strlen(nptr->children[0]->val.sval)] = '\0';
+                            }
                                 break;
                             case TOK_NOT:
                                 if (nptr->children[0]->val.bval) {
@@ -187,13 +210,28 @@ static void eval_node(node_t *nptr) {
                     if (is_binop(nptr->tok)) {
                         switch (nptr->tok) {
                             case TOK_PLUS:
-                                nptr->val.ival = nptr->children[0]->val.ival + nptr->children[1]->val.ival;
+                                if (nptr->type == INT_TYPE) {
+                                    nptr->val.ival = nptr->children[0]->val.ival + nptr->children[1]->val.ival;
+                                } else if (nptr->type == STRING_TYPE) {
+                                    nptr->val.sval = malloc( strlen(nptr->children[0]->val.sval)
+                                        + strlen(nptr->children[1]->val.sval) + 1 );
+                                    nptr->val.sval = strcat(nptr->children[0]->val.sval, nptr->children[1]->val.sval);
+                                    nptr->val.sval[strlen(nptr->children[0]->val.sval) + strlen(nptr->children[1]->val.sval)] = '\0';
+                                }
                                 break;
                             case TOK_BMINUS:
                                 nptr->val.ival = nptr->children[0]->val.ival - nptr->children[1]->val.ival;
                                 break;
                             case TOK_TIMES:
-                                nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
+                                if(nptr->type == INT_TYPE) {
+                                    nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
+                                } else if (nptr->type == STRING_TYPE) {
+                                    for(int i = 0; i < nptr->children[1]->val.ival; i++) {
+                                        nptr->val.sval = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
+                                        strcat(nptr->val.sval, nptr->children[0]->val.sval);
+                                        nptr->val.sval[nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval)] = '\0';
+                                    }
+                                }
                                 break;
                             case TOK_DIV:
                                 if (nptr->children[1]->val.ival == 0) {
@@ -224,28 +262,49 @@ static void eval_node(node_t *nptr) {
                                 }
                                 break;
                             case TOK_LT:
-                                if ( nptr->children[0]->val.ival < nptr->children[1]->val.ival) {
+                                if ( nptr->children[0]->type == INT_TYPE && nptr->children[0]->val.ival < nptr->children[1]->val.ival) {
                                     nptr->val.bval = true;
-                                } else {
+                                } else if (nptr->children[0]->type == STRING_TYPE ) {
+                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, strlen(nptr->children[0]->val.sval));
+                                    if(res < 0) {
+                                        nptr->val.bval = true;
+                                    } else {
+                                        nptr->val.bval = false;
+                                    }
+                                }else {
                                     nptr->val.bval = false;
                                 }
                                 break;
                             case TOK_GT:
-                                if ( nptr->children[0]->val.ival > nptr->children[1]->val.ival) {
+                                if ( nptr->children[0]->type == INT_TYPE && nptr->children[0]->val.ival > nptr->children[1]->val.ival) {
                                     nptr->val.bval = true;
-                                } else {
-                                    nptr->val.bval = false;
-                                }
-                                break;
-                            case TOK_EQ: // number or boolean? both
-                                if(nptr->type == INT_TYPE) {
-                                    if(nptr->children[0]->val.ival == nptr->children[1]->val.ival) {
+                                } else if (nptr->children[0]->type == STRING_TYPE ) {
+                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, strlen(nptr->children[0]->val.sval));
+                                    if(res > 0) {
                                         nptr->val.bval = true;
                                     } else {
                                         nptr->val.bval = false;
                                     }
                                 } else {
+                                    nptr->val.bval = false;
+                                }
+                                break;
+                            case TOK_EQ:
+                                if(nptr->children[0]->type == INT_TYPE) {
+                                    if(nptr->children[0]->val.ival == nptr->children[1]->val.ival) {
+                                        nptr->val.bval = true;
+                                    } else {
+                                        nptr->val.bval = false;
+                                    }
+                                } else if (nptr->children[0]->type == BOOL_TYPE) {
                                     if(nptr->children[0]->val.bval == nptr->children[1]->val.bval) {
+                                        nptr->val.bval = true;
+                                    } else {
+                                        nptr->val.bval = false;
+                                    }
+                                } else if (nptr->children[0]->type == STRING_TYPE) {
+                                    int res = strncmp(nptr->children[0]->val.sval, nptr->children[1]->val.sval, strlen(nptr->children[0]->val.sval));
+                                    if(res == 0) {
                                         nptr->val.bval = true;
                                     } else {
                                         nptr->val.bval = false;
@@ -260,6 +319,9 @@ static void eval_node(node_t *nptr) {
                     if (nptr->tok == TOK_IDENTITY) {
                         if (nptr->type == STRING_TYPE) {
                             // Week 2 TODO: You'll need to make a copy of the string.
+                            nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
+                            strcpy(nptr->val.sval, nptr->children[0]->val.sval);
+                            nptr->val.sval[strlen(nptr->children[0]->val.sval)] = '\0';
                         } else {
                             nptr->val.ival = nptr->children[0]->val.ival;
                         }
@@ -274,10 +336,26 @@ static void eval_node(node_t *nptr) {
             eval_node(nptr->children[0]);
             if(nptr->children[0]->val.bval) {
                 eval_node(nptr->children[1]);
-                nptr->val = nptr->children[1]->val; // ival/bval?
+                if(nptr->children[1]->type == INT_TYPE) {
+                    nptr->val.ival = nptr->children[1]->val.ival;
+                } else if (nptr->children[1]->type == BOOL_TYPE) {
+                    nptr->val.bval = nptr->children[1]->val.bval;
+                } else if (nptr->children[1]->type == STRING_TYPE) {
+                    nptr->val.sval = malloc(strlen(nptr->children[1]->val.sval) + 1);
+                    nptr->val.sval = nptr->children[1]->val.sval;
+                    nptr->val.sval[strlen(nptr->children[1]->val.sval)] = '\0';
+                }
             } else {
                 eval_node(nptr->children[2]);
-                nptr->val = nptr->children[2]->val;
+                if(nptr->children[2]->type == INT_TYPE) {
+                    nptr->val.ival = nptr->children[2]->val.ival;
+                } else if (nptr->children[2]->type == BOOL_TYPE) {
+                    nptr->val.bval = nptr->children[2]->val.bval;
+                } else if (nptr->children[2]->type == STRING_TYPE) {
+                    nptr->val.sval = malloc(strlen(nptr->children[2]->val.sval) + 1);
+                    nptr->val.sval = nptr->children[2]->val.sval;
+                    nptr->val.sval[strlen(nptr->children[2]->val.sval)] = '\0';
+                }
             }
         }
         
@@ -314,7 +392,7 @@ void eval_root(node_t *nptr) {
     if (terminate || ignore_input) return;
     
     if (nptr->type == STRING_TYPE) {
-        (nptr->val).sval = (char *) malloc(strlen(nptr->children[0]->val.sval) + 1);
+        (nptr->val).sval = (char *) malloc(strlen(nptr->children[0]->val.sval));
         if (! nptr->val.sval) {
             logging(LOG_FATAL, "failed to allocate string");
             return;
@@ -346,7 +424,14 @@ void infer_and_eval(node_t *nptr) {
 
 char *strrev(char *str) {
     // Week 2 TODO: Implement copying and reversing the string.
-    return NULL;
+    char *copy = malloc(strlen(str) + 1);
+    int copyI = 0;
+    for(int i = strlen(str) - 1; i >= 0; i--) {
+        copy[copyI] = str[i];
+        copyI++;
+    }
+    copy[strlen(str)] = '\0';
+    return copy;
 }
 
 /* cleanup() - frees the space allocated to the AST
@@ -354,5 +439,13 @@ char *strrev(char *str) {
  */
 void cleanup(node_t *nptr) {
     // Week 2 TODO: Recursively free each node in the AST
-    return;
+    if(nptr != NULL) {
+        for(int i = 0; i < 3; i++) {
+            cleanup(nptr->children[i]);
+        }
+        if(nptr->type == STRING_TYPE) {
+            // free(nptr->val.sval);
+        }
+        // free(nptr);
+    }
 }

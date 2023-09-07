@@ -100,6 +100,7 @@ static void infer_type(node_t *nptr) {
                         } else {
                             handle_error(ERR_TYPE);
                         }
+                        break;
                     // unary operators
                     case TOK_UMINUS:
                         if (nptr->children[0]->type == INT_TYPE) {
@@ -190,13 +191,13 @@ static void eval_node(node_t *nptr) {
                     if (is_unop(nptr->tok)) {
                         switch (nptr->tok) {
                             case TOK_UMINUS:
-                            if(nptr->children[0]->type == INT_TYPE) {
-                                nptr->val.ival = - (nptr->children[0]->val.ival);
-                            } else if(nptr->children[0]->type == STRING_TYPE) {
-                                nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
-                                nptr->val.sval = strrev(nptr->children[0]->val.sval);
-                                nptr->val.sval[strlen(nptr->children[0]->val.sval)] = '\0';
-                            }
+                                if(nptr->children[0]->type == INT_TYPE) {
+                                    nptr->val.ival = - (nptr->children[0]->val.ival);
+                                } else if(nptr->children[0]->type == STRING_TYPE) {
+                                    nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
+                                    nptr->val.sval = strrev(nptr->children[0]->val.sval);
+                                    nptr->val.sval[strlen(nptr->children[0]->val.sval)] = '\0';
+                                }
                                 break;
                             case TOK_NOT:
                                 if (nptr->children[0]->val.bval) {

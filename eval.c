@@ -216,12 +216,11 @@ static void eval_node(node_t *nptr) {
                                 if (nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival + nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    char *res = malloc( strlen(nptr->children[0]->val.sval)
+                                    nptr->val.sval = malloc( strlen(nptr->children[0]->val.sval)
                                         + strlen(nptr->children[1]->val.sval) + 1); 
-                                    res[0] = '\0';
-                                    strcpy(res, nptr->children[0]->val.sval);
-                                    strcat(res, nptr->children[1]->val.sval);
-                                    nptr->val.sval = res;
+                                    nptr->val.sval[0] = '\0';
+                                    strcpy(nptr->val.sval, nptr->children[0]->val.sval);
+                                    strcat(nptr->val.sval, nptr->children[1]->val.sval);
                                 }
                                 break;
                             case TOK_BMINUS:
@@ -231,12 +230,11 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    char *res = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
-                                    res[0] = '\0';
+                                    nptr->val.sval = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
+                                    nptr->val.sval[0] = '\0';
                                     for(int i = 0; i < nptr->children[1]->val.ival; i++) {
-                                        strcat(res, nptr->children[0]->val.sval);
+                                        strcat(nptr->val.sval, nptr->children[0]->val.sval);
                                     }
-                                    nptr->val.sval = res;
                                 }
                                 break;
                             case TOK_DIV:
@@ -397,7 +395,7 @@ void eval_root(node_t *nptr) {
     if (terminate || ignore_input) return;
     
     if (nptr->type == STRING_TYPE) {
-        (nptr->val).sval = (char *) malloc(strlen(nptr->children[0]->val.sval));
+        (nptr->val).sval = (char *) malloc(strlen(nptr->children[0]->val.sval) + 1);
         if (! nptr->val.sval) {
             logging(LOG_FATAL, "failed to allocate string");
             return;

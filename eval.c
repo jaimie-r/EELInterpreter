@@ -194,6 +194,7 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->children[0]->type == INT_TYPE) {
                                     nptr->val.ival = - (nptr->children[0]->val.ival);
                                 } else if(nptr->children[0]->type == STRING_TYPE) {
+                                    free(nptr->val.sval);
                                     nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
                                     nptr->val.sval = strrev(nptr->children[0]->val.sval);
                                     nptr->val.sval[strlen(nptr->children[0]->val.sval)] = '\0';

@@ -194,8 +194,6 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->children[0]->type == INT_TYPE) {
                                     nptr->val.ival = - (nptr->children[0]->val.ival);
                                 } else if(nptr->children[0]->type == STRING_TYPE) {
-                                    free(nptr->val.sval);
-                                    nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
                                     nptr->val.sval = strrev(nptr->children[0]->val.sval);
                                     nptr->val.sval[strlen(nptr->children[0]->val.sval)] = '\0';
                                 }
@@ -217,7 +215,7 @@ static void eval_node(node_t *nptr) {
                                 if (nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival + nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    nptr->val.sval = malloc( strlen(nptr->children[0]->val.sval)
+                                    nptr->val.sval = (char*) malloc( strlen(nptr->children[0]->val.sval)
                                         + strlen(nptr->children[1]->val.sval) + 1); 
                                     nptr->val.sval[0] = '\0';
                                     strcpy(nptr->val.sval, nptr->children[0]->val.sval);
@@ -231,7 +229,7 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    nptr->val.sval = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
+                                    nptr->val.sval = (char*) malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
                                     nptr->val.sval[0] = '\0';
                                     for(int i = 0; i < nptr->children[1]->val.ival; i++) {
                                         strcat(nptr->val.sval, nptr->children[0]->val.sval);
@@ -324,7 +322,7 @@ static void eval_node(node_t *nptr) {
                     if (nptr->tok == TOK_IDENTITY) {
                         if (nptr->type == STRING_TYPE) {
                             // Week 2 TODO: You'll need to make a copy of the string.
-                            nptr->val.sval = malloc(strlen(nptr->children[0]->val.sval) + 1);
+                            nptr->val.sval = (char*) malloc(strlen(nptr->children[0]->val.sval) + 1);
                             strcpy(nptr->val.sval, nptr->children[0]->val.sval);
                         } else {
                             nptr->val.ival = nptr->children[0]->val.ival;
@@ -345,7 +343,7 @@ static void eval_node(node_t *nptr) {
                 } else if (nptr->children[1]->type == BOOL_TYPE) {
                     nptr->val.bval = nptr->children[1]->val.bval;
                 } else if (nptr->children[1]->type == STRING_TYPE) {
-                    nptr->val.sval = malloc(strlen(nptr->children[1]->val.sval) + 1);
+                    nptr->val.sval = (char*) malloc(strlen(nptr->children[1]->val.sval) + 1);
                     nptr->val.sval[0] = '\0';
                     strcpy(nptr->val.sval, nptr->children[1]->val.sval);
                 }
@@ -356,7 +354,7 @@ static void eval_node(node_t *nptr) {
                 } else if (nptr->children[2]->type == BOOL_TYPE) {
                     nptr->val.bval = nptr->children[2]->val.bval;
                 } else if (nptr->children[2]->type == STRING_TYPE) {
-                    nptr->val.sval = malloc(strlen(nptr->children[2]->val.sval) + 1);
+                    nptr->val.sval = (char*) malloc(strlen(nptr->children[2]->val.sval) + 1);
                     nptr->val.sval[0] = '\0';
                     strcpy(nptr->val.sval, nptr->children[2]->val.sval);
                 }
@@ -428,7 +426,7 @@ void infer_and_eval(node_t *nptr) {
 
 char *strrev(char *str) {
     // Week 2 TODO: Implement copying and reversing the string.
-    char *copy = malloc(strlen(str) + 1);
+    char *copy = (char*) malloc(strlen(str) + 1);
     int copyI = 0;
     for(int i = strlen(str) - 1; i >= 0; i--) {
         copy[copyI] = str[i];

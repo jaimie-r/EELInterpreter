@@ -215,11 +215,12 @@ static void eval_node(node_t *nptr) {
                                 if (nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival + nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    nptr->val.sval = malloc( strlen(nptr->children[0]->val.sval)
+                                    char *res = malloc( strlen(nptr->children[0]->val.sval)
                                         + strlen(nptr->children[1]->val.sval) + 1); 
-                                    nptr->val.sval[0] = '\0';
-                                    strcat(nptr->val.sval, nptr->children[0]->val.sval);
-                                    strcat(nptr->val.sval, nptr->children[1]->val.sval);
+                                    res[0] = '\0';
+                                    strcpy(res, nptr->children[0]->val.sval);
+                                    strcat(res, nptr->children[1]->val.sval);
+                                    nptr->val.sval = res;
                                 }
                                 break;
                             case TOK_BMINUS:
@@ -229,11 +230,12 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    nptr->val.sval = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
-                                    nptr->val.sval[0] = '\0';
+                                    char *res = malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
+                                    res[0] = '\0';
                                     for(int i = 0; i < nptr->children[1]->val.ival; i++) {
-                                        strcat(nptr->val.sval, nptr->children[0]->val.sval);
+                                        strcat(res, nptr->children[0]->val.sval);
                                     }
+                                    nptr->val.sval = res;
                                 }
                                 break;
                             case TOK_DIV:
@@ -344,8 +346,8 @@ static void eval_node(node_t *nptr) {
                     nptr->val.bval = nptr->children[1]->val.bval;
                 } else if (nptr->children[1]->type == STRING_TYPE) {
                     nptr->val.sval = malloc(strlen(nptr->children[1]->val.sval) + 1);
-                    nptr->val.sval = nptr->children[1]->val.sval;
-                    nptr->val.sval[strlen(nptr->children[1]->val.sval)] = '\0';
+                    nptr->val.sval[0] = '\0';
+                    strcpy(nptr->val.sval, nptr->children[1]->val.sval);
                 }
             } else {
                 eval_node(nptr->children[2]);
@@ -355,8 +357,8 @@ static void eval_node(node_t *nptr) {
                     nptr->val.bval = nptr->children[2]->val.bval;
                 } else if (nptr->children[2]->type == STRING_TYPE) {
                     nptr->val.sval = malloc(strlen(nptr->children[2]->val.sval) + 1);
-                    nptr->val.sval = nptr->children[2]->val.sval;
-                    nptr->val.sval[strlen(nptr->children[2]->val.sval)] = '\0';
+                    nptr->val.sval[0] = '\0';
+                    strcpy(nptr->val.sval, nptr->children[2]->val.sval);
                 }
             }
         }

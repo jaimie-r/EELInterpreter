@@ -113,7 +113,46 @@ entry_t * init_entry(char *id, node_t *nptr) {
 
 void put(char *id, node_t *nptr) {
     // Week 3 TODO: Implement adding to the hashtable.
-    return;
+    int index = hash_function(id);
+    bool exists = false;
+    struct entry *eptr = malloc(sizeof(eptr));
+    struct entry *prev = malloc(sizeof(prev));
+    struct entry *next = malloc(sizeof(next));
+    prev = var_table->entries[index];
+    eptr = var_table->entries[index];
+    next = eptr->next;
+    if(eptr == NULL) { // empty
+        eptr = init_entry(id, nptr);
+        eptr->next = NULL;
+    } else if (eptr->id == id) { // exists as first element
+        delete_entry(eptr);
+        eptr = init_entry(id, nptr);
+        eptr->next = next;
+    } else { // check the linked list
+        eptr = eptr->next; // 2nd element
+        next = next->next; // 3rd element
+        while(eptr != NULL && !exists) {
+            if (eptr->id == id) {
+                exists = true;
+            }
+            if (!exists) {
+                eptr = eptr->next;
+                next = next->next;
+                prev = prev->next;
+            }
+        }
+        if (exists) {
+            delete_entry(eptr);
+            eptr = init_entry(id, nptr);
+            prev->next = eptr;
+            eptr->next = next;
+        }
+        if (!exists) {
+            eptr = init_entry(id, nptr);
+            eptr->next = NULL;
+            prev->next = eptr;
+        }
+    }
 }
 
 /* get() - search for an entry in the hashtable.
@@ -124,7 +163,16 @@ void put(char *id, node_t *nptr) {
 
 entry_t* get(char* id) {
     // Week 3 TODO: Implement retrieving from the hasttable.
-    return NULL;
+    int index = hash_function(id);
+    struct entry *eptr;
+    eptr = var_table->entries[index];
+    while(eptr != NULL) {
+        if (eptr->id == id) {
+            return eptr;
+        }
+        eptr = eptr->next;
+    }
+    return eptr;
 }
 
 void print_entry(entry_t *eptr) {

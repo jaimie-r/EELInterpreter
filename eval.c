@@ -42,7 +42,7 @@ static void infer_type(node_t *nptr) {
             // For each week, you will also need to include error checking for each type.
             // Week 1 TODO: Implement type inference for all operators on int and bool types.
             // Week 2 TODO: Extend type inference to handle operators on string types.
-            // Week 3 TODO: Implement tpye evaluation for variables.
+            // Week 3 TODO: Implement type evaluation for variables.
             case NT_INTERNAL:
                 switch (nptr->tok) {
                     // For reference, the identity (do nothing) operator is implemented for you.
@@ -130,6 +130,18 @@ static void infer_type(node_t *nptr) {
                         break;
                 }
             case NT_LEAF:
+                if(nptr->type == ID_TYPE) {
+                    struct entry *eptr = malloc(sizeof(eptr));
+                    eptr = get(nptr->val.sval);
+                    nptr->type = eptr->type;
+                    if(eptr->type == INT_TYPE) {
+                        nptr->val.ival = eptr->val.ival;
+                    } else if (eptr->type == BOOL_TYPE) {
+                        nptr->val.bval = eptr->val.bval;
+                    } else if (eptr->type == STRING_TYPE) {
+                        nptr->val.sval = eptr->val.sval;
+                    }
+                }
                 break;
             case NT_ROOT:
                 break;

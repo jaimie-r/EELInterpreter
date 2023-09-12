@@ -135,6 +135,7 @@ static void infer_type(node_t *nptr) {
                     nptr->type = eptr->type;
                     nptr->val = eptr->val;
                     if (eptr->type == STRING_TYPE) {
+                        nptr->val.sval = malloc(sizeof(eptr->val.sval));
                         nptr->val.sval = eptr->val.sval;
                     } else {
                         nptr->val = eptr->val;
@@ -239,10 +240,14 @@ static void eval_node(node_t *nptr) {
                                 if(nptr->type == INT_TYPE) {
                                     nptr->val.ival = nptr->children[0]->val.ival * nptr->children[1]->val.ival;
                                 } else if (nptr->type == STRING_TYPE) {
-                                    nptr->val.sval = (char*) malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
-                                    nptr->val.sval[0] = '\0';
-                                    for(int i = 0; i < nptr->children[1]->val.ival; i++) {
-                                        strcat(nptr->val.sval, nptr->children[0]->val.sval);
+                                    if(nptr->children[1]->val.ival < 0) {
+                                        handle_error(ERR_EVAL);
+                                    } else {
+                                        nptr->val.sval = (char*) malloc(nptr->children[1]->val.ival * strlen(nptr->children[0]->val.sval) + 1);
+                                        nptr->val.sval[0] = '\0';
+                                        for(int i = 0; i < nptr->children[1]->val.ival; i++) {
+                                            strcat(nptr->val.sval, nptr->children[0]->val.sval);
+                                        }
                                     }
                                 }
                                 break;

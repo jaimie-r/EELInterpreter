@@ -131,15 +131,13 @@ static void infer_type(node_t *nptr) {
                 }
             case NT_LEAF:
                 if(nptr->type == ID_TYPE) {
-                    struct entry *eptr = malloc(sizeof(eptr));
-                    eptr = get(nptr->val.sval);
+                    entry_t* eptr = get(nptr->val.sval);
                     nptr->type = eptr->type;
-                    if(eptr->type == INT_TYPE) {
-                        nptr->val.ival = eptr->val.ival;
-                    } else if (eptr->type == BOOL_TYPE) {
-                        nptr->val.bval = eptr->val.bval;
-                    } else if (eptr->type == STRING_TYPE) {
+                    nptr->val = eptr->val;
+                    if (eptr->type == STRING_TYPE) {
                         nptr->val.sval = eptr->val.sval;
+                    } else {
+                        nptr->val = eptr->val;
                     }
                 }
                 break;

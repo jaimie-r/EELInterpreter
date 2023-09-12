@@ -112,47 +112,40 @@ entry_t * init_entry(char *id, node_t *nptr) {
  */
 
 void put(char *id, node_t *nptr) {
-    // Week 3 TODO: Implement adding to the hashtable.
     int index = hash_function(id);
-    bool exists = false;
-    struct entry *eptr = malloc(sizeof(eptr));
-    struct entry *prev = malloc(sizeof(prev));
-    struct entry *next = malloc(sizeof(next));
-    prev = var_table->entries[index];
-    eptr = var_table->entries[index];
-    next = eptr->next;
-    if(eptr == NULL) { // empty
-        eptr = init_entry(id, nptr);
-        eptr->next = NULL;
-    } else if (eptr->id == id) { // exists as first element
-        delete_entry(eptr);
-        eptr = init_entry(id, nptr);
-        eptr->next = next;
-    } else { // check the linked list
-        eptr = eptr->next; // 2nd element
-        next = next->next; // 3rd element
-        while(eptr != NULL && !exists) {
-            if (eptr->id == id) {
-                exists = true;
-            }
-            if (!exists) {
-                eptr = eptr->next;
-                next = next->next;
-                prev = prev->next;
-            }
-        }
-        if (exists) {
+    entry_t *prev = var_table->entries[index];
+    entry_t *eptr = var_table->entries[index];
+    if(eptr == NULL) {
+        var_table->entries[index] = init_entry(id, nptr);
+    } else {
+        if(strcmp(eptr->id, id) == 0) { // first one
+            entry_t *temp = init_entry(id, nptr);
+            temp->next = eptr->next;
             delete_entry(eptr);
-            eptr = init_entry(id, nptr);
-            prev->next = eptr;
-            eptr->next = next;
+            eptr = temp;
+        } else { // last or middle
+            eptr = eptr->next;
+            bool found = false;
+            while(eptr != NULL && !found) {
+                if(strcmp(eptr->id, id) == 0) { // found it (middle)
+                    entry_t *temp = init_entry(id, nptr);
+                    temp->next = eptr->next;
+                    prev->next = temp;
+                    delete_entry(eptr);
+                    eptr = temp;
+                    found = true;
+                } else {
+                    eptr = eptr->next;
+                    prev = prev->next;
+                }
+            }
+            if(!found) { // last
+                delete_entry(eptr);
+                eptr = init_entry(id, nptr);
+                prev->next = eptr;
+            }
         }
-        if (!exists) {
-            eptr = init_entry(id, nptr);
-            eptr->next = NULL;
-            prev->next = eptr;
-        }
-    }
+    } 
 }
 
 /* get() - search for an entry in the hashtable.
@@ -164,15 +157,14 @@ void put(char *id, node_t *nptr) {
 entry_t* get(char* id) {
     // Week 3 TODO: Implement retrieving from the hasttable.
     int index = hash_function(id);
-    struct entry *eptr;
-    eptr = var_table->entries[index];
+    struct entry *eptr = var_table->entries[index];
     while(eptr != NULL) {
-        if (eptr->id == id) {
+        if (strcmp(eptr->id, id) == 0) {
             return eptr;
         }
         eptr = eptr->next;
     }
-    return eptr;
+    return NULL;
 }
 
 void print_entry(entry_t *eptr) {

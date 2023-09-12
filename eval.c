@@ -132,11 +132,11 @@ static void infer_type(node_t *nptr) {
             case NT_LEAF:
                 if(nptr->type == ID_TYPE) {
                     entry_t* eptr = get(nptr->val.sval);
+                    free(nptr->val.sval);
                     nptr->type = eptr->type;
-                    nptr->val = eptr->val;
                     if (eptr->type == STRING_TYPE) {
-                        nptr->val.sval = malloc(sizeof(eptr->val.sval));
-                        nptr->val.sval = eptr->val.sval;
+                        nptr->val.sval = malloc(strlen(eptr->val.sval) + 1);
+                        strcpy(nptr->val.sval, eptr->val.sval);
                     } else {
                         nptr->val = eptr->val;
                     }
@@ -460,7 +460,7 @@ void cleanup(node_t *nptr) {
         for(int i = 0; i < 3; i++) {
             cleanup(nptr->children[i]);
         }
-        if(nptr->type == STRING_TYPE) {
+        if(nptr->type == STRING_TYPE || nptr->type == ID_TYPE) {
             free(nptr->val.sval);
         }
         free(nptr);

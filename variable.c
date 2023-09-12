@@ -112,6 +112,7 @@ entry_t * init_entry(char *id, node_t *nptr) {
  */
 
 void put(char *id, node_t *nptr) {
+    /*
     int index = hash_function(id);
     entry_t *prev = var_table->entries[index];
     entry_t *eptr = var_table->entries[index];
@@ -145,7 +146,33 @@ void put(char *id, node_t *nptr) {
                 prev->next = eptr;
             }
         }
-    } 
+    }  */
+    int index = hash_function(id);
+    entry_t *eptr = var_table->entries[index];
+    if(eptr == NULL) { // empty
+        var_table->entries[index] = init_entry(id, nptr);
+    } else {
+        if(strcmp(eptr->id, id) == 0) { // first
+            entry_t *temp = init_entry(id, nptr);
+            temp->next = eptr->next;
+            delete_entry(var_table->entries[index]);
+            var_table->entries[index] = temp;
+        } else {
+            bool found = false;
+            while(eptr->next != NULL && !found) {
+                if(strcmp(eptr->next->id, id) == 0) { // middle
+                    entry_t *temp = init_entry(id, nptr);
+                    temp->next = eptr->next->next;
+                    delete_entry(eptr->next);
+                    eptr->next = temp;
+                    found = true;
+                }
+            }
+            if(!found) { // last
+                eptr->next = init_entry(id, nptr);
+            }
+        }
+    }
 }
 
 /* get() - search for an entry in the hashtable.

@@ -1,48 +1,17 @@
-# CI-lab
+### PROJECT DESCRIPTION
+This is an interpreter for EEL,a “little language” of
+expressions. Some of the skills developed through this project are:
+• Explicit memory management using the malloc and free calls, which is very different from previous experience with Java.
+• Creating and manipulating pointer-based data structures: trees, linked lists, and hash tables. While
+pointers in C are similar to references in Java, there are key differences between them.
+• Working with strings since there's no String class in C.
+• Implementing robust code that operates correctly with invalid arguments, such as NULL pointers. 
+This project contains a simple version of an interpreter for
+EEL. Most of the code for reading and printing was provided by Siddarth Chatterjee, so my contribution is the
+evaluation part of REPL.
+• The interpreter handles a core language two data types
+(integers and Booleans), literals (i.e., constants, not variables), a handful of unary, binary, and
+ternary operations (some overloaded), strings and named variables to create the language EEL-2.
 
-This is the code base for CS429 S2023 CI lab. Check the writeup for more details.
-
- ## Files
- Files should be included in handout:
- ```
- tests/
- ansicolors.h
- ci_reference
- ci.c
- ci.h
- driver.sh
- err_handler.c
- err_handler.h
- eval.c
- handle_args.c
- interface.c
- lex.c
- Makefile
- node.h
- parse.c
- print.c
- token.h
- type.h
- update.sh
- value.h
- variable.c
- variable.h
- ```
- * Students are required to complete `eval.c` and `variable.c`. 
-
- * `ci_reference` is a compiled reference program executable provided to students. `driver.sh <filename>` runs `ci` and `ci_reference` and compares their outputs.
-
- * `tests/` holds the testcases provided to students. Students are required to pass all testcases in `test_week1.txt` for week 1.
-
-## Program
-* Run `make ci` to get the binary `ci`. Run `make test_week#` to run the simple grader on a given week's test cases.
-
-* `ci` takes two optional arguments: 
-    ```
-    ./ci -i <infile> -o <outfile>
-    ```
-    The infile can also be fed from stdin with `./ci < <infile>`. The outfile is only used for grading, where the formatting stuffs are removed.
-
-* The interactive prompt of `ci` takes two special commands:
-    * `@q` to quit the program
-    * `@p` to print all defined variables (EEL-2)
+## HOW TO RUN:
+* Run `make ci` to get the binary `ci`. Run `make test_week3` to run the test case.
